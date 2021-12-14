@@ -1,0 +1,78 @@
+--user list--username and password
+drop table usernamepass;
+create table usernamepass(
+id int GENERATED ALWAYS as IDENTITY(START with 1 INCREMENT by 1),
+username varchar(80) not null,
+password varchar(80) not null
+);
+alter table usernamepass add created_at timestamp  default current_timestamp not null;
+alter table usernamepass add constraint pk_user primary key(username);
+alter table usernamepass add role varchar(80) not null;
+
+desc usernamepass;
+
+
+--profilebank--unique yet
+create table userprofile(
+id int GENERATED ALWAYS as IDENTITY(START with 1 INCREMENT by 1),
+username varchar(80) not null,
+user_acc_no int not null,
+balance number(20,2) not null,
+mob_no int not null);
+
+alter table userprofile add constraint fk_user foreign key(username) references usernamepass(username);
+alter table userprofile add constraint pk_useracc primary key(user_acc_no);
+
+desc userprofile;
+
+
+--deposit table--
+create table deposit(
+id int GENERATED ALWAYS as IDENTITY(START with 1 INCREMENT by 1),
+user_acc_no int not null,
+dep_amount number(20,2) not null);
+
+alter table deposit add dep_at timestamp default current_timestamp;
+alter table deposit add constraint fk_userdep foreign key(user_acc_no) references userprofile(user_acc_no);
+
+
+--withdraw table--
+create table withdraw(
+id int GENERATED ALWAYS as IDENTITY(START with 1 INCREMENT by 1),
+user_acc_no int not null,
+with_amount number(20,2) not null);
+alter table withdraw modify withdraw_at timestamp default current_timestamp not null;
+alter table withdraw add constraint fk_userwith foreign key(user_acc_no) references userprofile(user_acc_no);
+desc withdraw; 
+
+--login table--
+create table login(
+id int generated always as identity(start with 1 increment by 1),
+username varchar(80),
+logged_at timestamp default current_timestamp);
+
+alter table login add constraint fk_userlogin foreign key(username) references usernamepass(username);
+
+--insert usernamepass--
+select * from usernamepass;
+desc usernamepass;
+insert into usernamepass(username,password) values('mani','mani123');
+insert into usernamepass(username,password) values('hari','hari123');
+insert into usernamepass(username,password) values('suresh','suresh123');
+commit;
+--update usernamepass
+--set role = 'admin'
+--where id in 3;
+--select role from usernamepass where username in 'suresh';
+--select * from login;
+--alter table login add role varchar(80);
+--delete 
+--from login;
+select * from userprofile;
+insert into userprofile(username,user_acc_no,balance,mob_no) values('mani',123456,1234,978967);
+commit;
+select * from withdraw;
+desc deposit;
+select * from deposit;
+
+select with_amount trans,withdraw_at trans_at from withdraw where user_acc_no in 123456 union all select dep_amount trans,dep_at trans_at from deposit where user_acc_no in 123456;
